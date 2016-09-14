@@ -1,0 +1,12 @@
+<VirtualHost *:80>
+  ServerName web_app
+  DocumentRoot /home/vagrant/source/project/public
+  RewriteEngine On
+  SetEnv APPLICATION_ENV local
+  LogLevel info
+  ErrorLog ${APACHE_LOG_DIR}/error.log
+  CustomLog ${APACHE_LOG_DIR}/access.log combined
+  RewriteEngine On
+  RewriteLog ${APACHE_LOG_DIR}/rewrite.log
+  RewriteLogLevel 0
+</VirtualHost>

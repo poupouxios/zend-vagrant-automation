@@ -1,0 +1,194 @@
+---
+- hosts: default
+  sudo: yes
+
+  tasks:
+
+    - set_fact:
+        hostname: sampletesthost
+        database_user: sampleuser
+        database_password: password
+        database_name: sampletest
+        database_dump_name: 
+
+    - name: Set hostname of the server
+      hostname: name={{hostname}}
+
+    - name: generate locale for en_GB.UTF-8
+      locale_gen: name=en_GB.UTF-8 state=present
+
+    - name: Set timezone
+      copy: content='Europe/London' dest=/etc/timezone owner=root group=root mode=0644
+      notify:
+        - update timezone
+
+    - name: Copy apt sources.list into place
+      copy: src=sources.list dest=/etc/apt/sources.list owner=root
+
+    - name: Copy ssh config into place
+      copy: src=ssh-config dest=/home/vagrant/.ssh/config owner=vagrant
+
+    - name: Create ssh folder
+      file: path=/root/.ssh state=directory owner=root mode=0755
+
+    - name: Copy ssh config into place for root
+      copy: src=ssh-config dest=/root/.ssh/config owner=root
+
+    - name: install stuff from apt
+      apt: pkg={{ item }} state=latest update_cache=true
+      with_items:
+      - build-essential
+      - git-core
+      - rpl
+      - locate
+      - htop
+      - ntp
+      - rsync
+      - libproj-dev
+      - libxml2-dev
+      - libxslt1-dev
+      - libssl-dev
+      - libreadline-dev
+      - libcurl4-openssl-dev
+      - sudo
+      - mysql-server-5.5
+      - python-mysqldb
+      - libsqlite3-dev
+      - libffi-dev
+      - imagemagick
+      - redis-server
+      - unzip
+      - apache2
+      - apache2-mpm-prefork
+      - libapache2-mod-suphp
+      - php5-cgi
+      - php5-cli
+      - php5-curl
+      - php5-common
+      - php5-gd
+      - php5-imagick
+      - php5-mcrypt
+      - php5-mysql
+      - php5-xmlrpc
+      - suphp-common
+      - libmysqlclient-dev
+      - libicu-dev
+
+    - name: setup mysql user
+      mysql_user: name={{database_user}} password={{database_password}} priv=*.*:ALL,GRANT  host=% state=present
+
+    - name: create database name
+      mysql_db: name={{database_name}} state=present login_user={{database_user}} login_password={{database_password}}
+
+    - name: Checking if a mysql dump exist
+      stat: path=/home/vagrant/source/db/{{database_dump_name}}.sql
+      register: mysqldump_path
+
+    - name: import {{database_name}} db 
+      shell: mysql -u {{database_user}} -p{{database_password}} {{database_name}} < /home/vagrant/source/db/{{database_dump_name}}.sql
+      when: mysqldump_path.stat.exists
+
+    - name: set APPLICATION_ENV
+      lineinfile: dest=/home/vagrant/.bashrc line="export APPLICATION_ENV=local" state=present regexp='^export APPLICATION_ENV='
+
+    - name: remove apache2 default host
+      file: path=/etc/apache2/sites-enabled/000-default state=absent
+
+    - name: remove apache2 default host
+      file: path=/etc/apache2/sites-available/default state=absent
+
+    - name: copy ports.conf
+      copy: src=ports.conf dest=/etc/apache2/ports.conf mode=0644 owner=root
+
+    - name: copy virtualhost
+      copy: src=web-vhost dest=/etc/apache2/sites-available/{{hostname}} mode=0644 owner=root
+
+    - name: link in virtualhost to enable it
+      file: src=/etc/apache2/sites-available/{{hostname}} dest=/etc/apache2/sites-enabled/{{hostname}} state=link
+
+    - name: Copy suphp.conf into place
+      copy: src=suphp.conf dest=/etc/suphp/suphp.conf mode=0644 owner=root
+
+    - name: enable apache rewrite module
+      apache2_module: name=rewrite state=present
+      notify:
+        - restart apache
+
+    - name: Check to see if ruby is installed
+      stat: path=/usr/local/bin/ruby
+      register: ruby_binary
+ 
+    - name: Download ruby
+      get_url: url=http://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.4.tar.bz2 dest=/usr/local/src/ruby.tar.bz2 mode=0644
+      when: ruby_binary.stat.exists == false
+
+    - name: Extract ruby from archive
+      unarchive: src=/usr/local/src/ruby.tar.bz2 dest=/usr/local/src copy=no
+      when: ruby_binary.stat.exists == false
+
+    - name: Configure ruby
+      command: ./configure chdir=/usr/local/src/ruby-2.2.4
+      when: ruby_binary.stat.exists == false
+
+    - name: Compile ruby
+      command: make chdir=/usr/local/src/ruby-2.2.4
+      when: ruby_binary.stat.exists == false
+
+    - name: Install ruby
+      command: make install chdir=/usr/local/src/ruby-2.2.4
+      when: ruby_binary.stat.exists == false
+
+    - name: Check to see if mailcatcher is installed
+      stat: path=/usr/local/bin/mailcatcher
+      register: mailcatcher
+
+    - name: Install mailcatcher gem
+      gem: name=mailcatcher state=latest user_install=no
+      when: mailcatcher.stat.exists == false
+
+    - name: Create startup script for mailcatcher
+      copy: dest=/etc/init.d/mailcatcher content='/usr/local/bin/mailcatcher --http-ip=0.0.0.0' owner=root group=root mode=0755
+
+    - name: Mailcatcher will start upon boot
+      command: update-rc.d mailcatcher defaults
+
+    - name: Make sure Mailcatcher is not running
+      command: pkill mailcatcher
+      ignore_errors: yes
+
+    - name: Start mailcatcher properly with the start script
+      service: name=mailcatcher state=started
+
+    - name: Set PHP to use mailcatcher (CGI)
+      ini_file: dest=/etc/php5/cgi/php.ini
+                section='mail function'
+                option=sendmail_path
+                value='/usr/local/bin/catchmail'
+
+    - name: Set PHP to use mailcatcher (CLI)
+      ini_file: dest=/etc/php5/cli/php.ini
+                section='mail function'
+                option=sendmail_path
+                value='/usr/local/bin/catchmail'
+
+    - name: Set composer path in bashrc
+      lineinfile: dest=/home/vagrant/.bashrc line="export PATH=$PATH:/home/vagrant/.composer/vendor/bin/" state=present
+
+    - name: Link composer binary to local user bin path
+      file: src=/home/vagrant/source/vagrant/composer.phar dest=/usr/local/bin/composer mode=0755 owner=root state=link
+
+    - name: Make sure composer directory exists
+      file: path=/home/vagrant/.composer state=directory owner=vagrant mode=0755
+
+    - name: Run composer
+      composer: command=install working_dir=/home/vagrant/source/project
+
+  handlers:
+    - name: update timezone
+      command: dpkg-reconfigure --frontend noninteractive tzdata
+
+    - name: restart apache
+      service: name=apache2 state=restarted
+
+    - name: restart mysql
+      service: name=mysql state=restarted
