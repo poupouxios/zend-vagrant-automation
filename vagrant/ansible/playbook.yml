@@ -22,6 +22,9 @@
       notify:
         - update timezone
 
+    - name: Add key to install php5-6
+      apt_key: url=http://www.dotdeb.org/dotdeb.gpg state=present
+  
     - name: Copy apt sources.list into place
       copy: src=sources.list dest=/etc/apt/sources.list owner=root
 

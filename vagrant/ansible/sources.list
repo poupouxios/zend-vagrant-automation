@@ -6,3 +6,7 @@ deb-src http://security.debian.org/ wheezy/updates main contrib non-free
 
 deb http://mirrors.kernel.org/debian wheezy-updates main contrib non-free
 deb-src http://mirrors.kernel.org/debian wheezy-updates main contrib non-free
+
+deb http://packages.dotdeb.org wheezy-php56 all
+deb-src http://packages.dotdeb.org wheezy-php56 all
+

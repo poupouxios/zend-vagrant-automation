@@ -53,6 +53,12 @@ if [ -d "$zendskeletonapp" ]; then
   rm -rf $zendskeletonapp
 fi
 
+echo "Setting correct permissions for files and folders"
+cd $project_folder/..
+find . -type f -print0 | xargs -0 chmod 0644
+find * -type d -print0 | xargs -0 chmod 0755
+
 echo "Done. Running vagrant up.."
 cd $vagrant_folder
 vagrant up
+vagrant provision
