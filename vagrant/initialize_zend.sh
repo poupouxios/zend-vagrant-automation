@@ -57,6 +57,8 @@ echo "Setting correct permissions for files and folders"
 cd $project_folder/..
 find . -type f -print0 | xargs -0 chmod 0644
 find * -type d -print0 | xargs -0 chmod 0755
+chmod 755 vagrant/composer.phar
+chmod +x vagrant/initialize_zend.sh
 
 echo "Done. Running vagrant up.."
 cd $vagrant_folder
