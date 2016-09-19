@@ -4,6 +4,7 @@ CURRENT_DIR=$PWD
 vagrant_folder=$CURRENT_DIR
 project_folder=$CURRENT_DIR/../project
 zendskeletonapp=$CURRENT_DIR/../project/ZendSkeletonApplication
+zendtag=release-2.5.0
 
 if [ ! -f "composer.phar" ]; then
   echo "Downloading composer.phar.."
@@ -30,8 +31,10 @@ fi
 
 cd $project_folder
 if [ ! -d "module" ]; then
+  read -p "Specify the release tag of Zend to setup. You can find it in https://github.com/zendframework/ZendSkeletonApplication (choose one of the release-* tags): " zendtag
+
   echo "Cloning Zend Skeleton.."
-  git clone -b release-2.5.0 --depth 1 https://github.com/zendframework/ZendSkeletonApplication
+  git clone -b $zendtag --depth 1 https://github.com/zendframework/ZendSkeletonApplication
 fi
 
 echo "Removing unecessary files.."
