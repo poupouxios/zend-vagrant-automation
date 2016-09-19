@@ -20,13 +20,12 @@ The project needs to have some essential components to start which are:
 ## Run this sample project
 
 1. Clone the project and put it in any place on your computer `git clone https://github.com/poupouxios/zend-vagrant.git`
-2. Navigate inside the vagrant folder and run the below command (if the script doesn't run change its permissions to be executable by doing `chmod +x initialize_zend.sh`:
-  * `./initialize_zend.sh`
-5. When you execute the script, It will prompt you to select what Zend tag to download. **Currently the script doesn't work with Zend Framework 3**. Visit `https://github.com/zendframework/ZendSkeletonApplication` and find the latest tag release for Zend Framework 2. I use the `release-2.5.0`.
-6. After you select the correct tag, the script will clone the Zend Skeleton structure and setup everything.
-7. Now sit back, grab a coffee or tea and watch the magic of Vagrant and Ansible setting up a Virtual Machine and setup everything to have a fresh Zend project to play.
-8. If everything goes fine, and the ansible script finishes successfully, you should be able to access the Zend Application via [http://192.168.60.100](http://192.168.60.100).
-9. You should be able also to access [Mailcatcher](http://mailcatcher.me/) through [http://192.168.60.100:1080](http://192.168.60.100:1080)
+2. Navigate inside the vagrant folder and run `./initialize_zend.sh` script (if the script doesn't run change its permissions to be executable by doing `chmod +x initialize_zend.sh`). 
+3. When you execute the script, It will prompt you to select what Zend tag to download. **Currently the script doesn't work with Zend Framework 3**. Visit `https://github.com/zendframework/ZendSkeletonApplication` and find the latest tag release for Zend Framework 2. I use the `release-2.5.0`.
+4. After you select the correct tag, the script will clone the Zend Skeleton structure and setup everything.
+5. Now sit back, grab a coffee or tea and watch the magic of Vagrant and Ansible setting up a Virtual Machine and setup everything to have a fresh Zend project to play.
+6. If everything goes fine, and the ansible script finishes successfully, you should be able to access the Zend Application via [http://192.168.60.100](http://192.168.60.100).
+7. You should be able also to access [Mailcatcher](http://mailcatcher.me/) through [http://192.168.60.100:1080](http://192.168.60.100:1080)
 
 ## Structure of the folders
 
@@ -48,8 +47,11 @@ In order to create your own project, there are some configuration variables that
   * `database_dump_name`: The purpose of this variable is to set a MySql dump name and ignore the steps of setting up a new Zend Application instance. By setting this variable, the script will try to find this dump name inside the db folder. An example is to set `zend-dump` name and inside db folder you have the `zend-dump.sql` file
 
 There are also inside the `vagrant/Vagrantfile` some configuration variables you might want to change. These are:
+
   * `config.vm.hostname`: Change the name of this hostname to be something unique for your project. Set the same also in hostname variable.
+
   * `config.vm.network :private_network`: This needs to be changed so that each project has its own IP in order to run multiple projects in different VMs and access them at the same time.
+
   * `vb.customize ['modifyvm', :id, '--cpus', '1', '--memory', 2048]`: This customization is if you want to change the number of cores and memory that will run Zend application inside the VM. 
 
 ## Extra useful information
