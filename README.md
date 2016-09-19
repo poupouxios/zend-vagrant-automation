@@ -15,7 +15,7 @@ The project needs to have some essential components to start which are:
 * [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 * [Vagrant](https://www.vagrantup.com/). Use this [Getting Started guideline](https://docs.vagrantup.com/v2/getting-started/) to familiarise yourself 
 * [Ansible](http://www.ansible.com/)
-* [NFS enable on Linux](https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nfs-mount-on-ubuntu-14-04) - This is essential as it decreases the response time when you click around the Drupal site.
+* [NFS enable on Linux](https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nfs-mount-on-ubuntu-14-04) - This is essential as it decreases the response time when you click around your Zend Application.
 
 ## Run this sample project
 
