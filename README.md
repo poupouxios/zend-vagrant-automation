@@ -19,7 +19,7 @@ The project needs to have some essential components to start which are:
 
 ## Run this sample project
 
-1. Clone the project and put it in any place on your computer `git clone https://github.com/poupouxios/zend-vagrant.git`
+1. Clone the project and put it in any place on your computer `git clone https://github.com/poupouxios/zend-vagrant-automation.git`
 2. Navigate inside the vagrant folder and run `./initialize_zend.sh` script (if the script doesn't run change its permissions to be executable by doing `chmod +x initialize_zend.sh`). 
 3. When you execute the script, It will prompt you to select what Zend tag to download. **Currently the script doesn't work with Zend Framework 3**. Visit `https://github.com/zendframework/ZendSkeletonApplication` and find the latest tag release for Zend Framework 2. I use the `release-2.5.0`.
 4. After you select the correct tag, the script will clone the Zend Skeleton structure and setup everything.
